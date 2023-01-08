@@ -9,19 +9,13 @@ blueprint:
       entity:
         multiple: true
         domain: switch
-    device:
-      name: Devices to Control
-      selector:
-        entity:
-          multiple: true
-          domain: switch
   source_url: https://gist.github.com/matrix2669/bb539014fb5ca8e6279a41c1121be677
 variables:
   trigger: !input switch
   devices: !input device
 trigger:
 - platform: device
-  device_id: blah
+  device_id: !input switch
   domain: zwave_js
   type: event.value_notification.central_scene
   property: scene
