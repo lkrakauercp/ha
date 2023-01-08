@@ -12,6 +12,7 @@ blueprint:
   source_url: https://gist.github.com/matrix2669/bb539014fb5ca8e6279a41c1121be677
 variables:
   devices: !input switch
+  trigger: !input switch
 trigger:
 - platform: device
   device_id: !input switch
