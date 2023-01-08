@@ -21,7 +21,7 @@ variables:
   devices: !input device
 trigger:
 - platform: device
-  device_id: !input switch
+  device_id: blah
   domain: zwave_js
   type: event.value_notification.central_scene
   property: scene
