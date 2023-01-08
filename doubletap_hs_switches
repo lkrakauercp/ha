@@ -23,11 +23,15 @@ trigger:
   command_class: 91
   subtype: Endpoint 0 Scene 001
   value: 3
+condition:
+- '{{ trigger.to_state.context.parent_id == none }}'
+- '{{ trigger.to_state.state == ''on'' or trigger.to_state.state == ''off'' }}'
 action:
-- service: 'device.turn_on
+- service: '{% if trigger.to_state.state == ''on'' %} device.turn_on {% elif
+    trigger.to_state.state == ''off'' %} device.turn_off {% endif %}
 
     '
   data_template:
-    entity_id: "{% set ts = namespace(device=[]) %} {% for dv in devices %}\n  
-        {% set ts.device = ts.device
-      + [dv] %}\n {% endfor %} {{ ts.device | list }}"
+    entity_id: "{% set ts = namespace(device=[]) %} {% for dv in devices %}\n  {%
+      if not is_state(dv,trigger.to_state.state) %}\n    {% set ts.device = ts.device
+      + [dv] %}\n  {% endif %}\n{% endfor %} {{ ts.device | list }}"
