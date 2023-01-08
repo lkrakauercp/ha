@@ -1,0 +1,33 @@
+blueprint:
+  name: Doubletap Homeseer Switches
+  description: Turn multiple devices on/off on doubletap of Homeseer switches
+  domain: automation
+  input:
+    switch:
+      name: Switches to Control
+      selector:
+        entity:
+          multiple: true
+          domain: switch
+  source_url: https://gist.github.com/matrix2669/bb539014fb5ca8e6279a41c1121be677
+variables:
+  devices: !input switch
+trigger:
+- platform: device
+  device_id: !input switch
+  domain: zwave_js
+  type: event.value_notification.central_scene
+  property: scene
+  property_key: "001"
+  endpoint: 0
+  command_class: 91
+  subtype: Endpoint 0 Scene 001
+  value: 3
+action:
+- service: 'device.turn_on
+
+    '
+  data_template:
+    entity_id: "{% set ts = namespace(device=[]) %} {% for dv in devices %}\n  
+        {% set ts.device = ts.device
+      + [dv] %}\n {% endfor %} {{ ts.device | list }}"

@@ -9,7 +9,7 @@ blueprint:
         entity:
           multiple: true
           domain: switch
-  source_url: https://gist.github.com/matrix2669/bb539014fb5ca8e6279a41c1121be677
+  source_url: https://github.com/lkrakauercp/ha/blob/main/sync_switches`
 variables:
   switches: !input switch
 trigger:
