@@ -6,42 +6,32 @@ blueprint:
     switch:
       name: Switches to Control
       selector:
-        entity:
+        device:
+          multiple: true
           integration: zwave_js
-          domain:
-            - light
-            - switch
   source_url: https://github.com/lkrakauercp/ha/blob/main/blueprints/sync_hs_switches
 variables:
   switches: !input switch
 trigger:
-- platform: state
-  entity_id: !input switch
-- platform: event
-  event_type: zwave_js_value_notification
+  - platform: event
+    event_type: zwave_js_value_notification
 condition: "{{
+  trigger.event.data.value == 'KeyPressed'
+  and trigger.event.data.device_id is in(switches)
+  and
   (
-    trigger.to_state.context.parent_id == none
-    and (
-      trigger.to_state.state == 'on' or trigger.to_state.state == 'off'
-    )
-  )
-  or
-  (
-      trigger.event.data.device_id is in(switches)
-      and trigger.event.data.value == 'KeyPressed'
-      and
-      (
-      trigger.event.data.property_key_name == '001'
-      or  trigger.event.data.property_key_name == '002'
-      )
+  trigger.event.data.property_key_name == '001'
+  or  trigger.event.data.property_key_name == '002'
   )
   }}"
 action:
-- service: "{% if trigger.to_state.state == 'on' or trigger.event.data.property_key_name == '001' %} switch.turn_on {% elif
-    trigger.to_state.state == 'off'  or trigger.event.data.property_key_name == '002'%} switch.turn_off {% endif %}
-    "
-  data_template:
-    entity_id: "{% set ts = namespace(switch=[]) %} {% for sw in switches %}\n  {%
-      if not is_state(sw,trigger.to_state.state) %}\n    {% set ts.switch = ts.switch
-      + [sw] %}\n  {% endif %}\n{% endfor %} {{ ts.switch | list }}"
+  - service:
+      "{% if trigger.event.data.property_key_name == '001' %} homeassistant.turn_on
+      {% elif trigger.event.data.property_key_name == '002'%} homeassistant.turn_off
+      {% endif %}"
+    data:
+      device_id: "{% set ts = namespace(switch=[]) %}
+        {% for sw in switches %}
+        {% set ts.switch = ts.switch + [sw] %}
+        {% endfor %}
+        {{ ts.switch | list }}"
