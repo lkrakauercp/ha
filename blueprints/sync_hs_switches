@@ -21,20 +21,20 @@ trigger:
   event_type: zwave_js_value_notification
 condition:
   or:
-    condition: state
-    - "{{ trigger.to_state.context.parent_id == none }}"
-    - "{{ trigger.to_state.state == 'on' or trigger.to_state.state == 'off' }}"
-    condition: event
-    - "{{
-      trigger.event.data.device_id is in(switches)
-      and trigger.event.data.value == 'KeyPressed'
-      and
-      (
-      trigger.event.data.property_key_name == '001'
-      or  trigger.event.data.property_key_name == '002'
-      )
-      }}
-      "
+    - condition: state
+      - "{{ trigger.to_state.context.parent_id == none }}"
+      - "{{ trigger.to_state.state == 'on' or trigger.to_state.state == 'off' }}"
+    - condition: event
+      - "{{
+        trigger.event.data.device_id is in(switches)
+        and trigger.event.data.value == 'KeyPressed'
+        and
+        (
+        trigger.event.data.property_key_name == '001'
+        or  trigger.event.data.property_key_name == '002'
+        )
+        }}
+        "
 action:
 - service: "{% if trigger.to_state.state == 'on' or trigger.event.data.property_key_name == '001' %} switch.turn_on {% elif
     trigger.to_state.state == 'off'  or trigger.event.data.property_key_name == '002'%} switch.turn_off {% endif %}
