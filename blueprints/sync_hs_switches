@@ -22,12 +22,12 @@ trigger:
 condition:
   or:
     condition: state
-    - "{{ trigger.to_state.context.parent_id == none }}""
-    - "{{ trigger.to_state.state == 'on' or trigger.to_state.state == 'off' }}""
+    - "{{ trigger.to_state.context.parent_id == none }}"
+    - "{{ trigger.to_state.state == 'on' or trigger.to_state.state == 'off' }}"
     condition: event
     - "{{
       trigger.event.data.device_id is in(switches)
-      and trigger.event.data.value == 'KeyPressed2x'`
+      and trigger.event.data.value == 'KeyPressed'
       and
       (
       trigger.event.data.property_key_name == '001'

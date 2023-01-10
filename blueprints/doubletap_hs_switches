@@ -27,7 +27,7 @@ trigger:
     event_type: zwave_js_value_notification
 condition: "{{
   trigger.event.data.device_id is in(dtap)
-  and trigger.event.data.value == 'KeyPressed'
+  and trigger.event.data.value == 'KeyPressed2x'
   and
   (
   trigger.event.data.property_key_name == '001'
