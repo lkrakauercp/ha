@@ -11,7 +11,7 @@ blueprint:
           domain:
             - light
             - switch
-  source_url: https://github.com/lkrakauercp/ha/blob/main/sync_switches`
+  source_url: https://github.com/lkrakauercp/ha/blob/main/blueprints/sync_hs_switches
 variables:
   switches: !input switch
 trigger:

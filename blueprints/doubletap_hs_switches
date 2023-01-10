@@ -18,7 +18,7 @@ blueprint:
           domain:
             - light
             - switch
-  source_url: https://github.com/lkrakauercp/ha/blob/main/doubletap_hs_switches
+  source_url: https://github.com/lkrakauercp/ha/blob/main/blueprints/doubletap_hs_switches
 variables:
   dtap: !input dtap
   switches: !input switch
