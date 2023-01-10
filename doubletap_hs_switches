@@ -3,35 +3,47 @@ blueprint:
   description: Turn multiple devices on/off on doubletap of Homeseer switches
   domain: automation
   input:
+    dtap:
+      name: Switch to double tap
+      selector:
+        device:
+          multiple: true
+          integration: zwave_js
     switch:
       name: Switches to Control
       selector:
         entity:
           multiple: true
-          domain: switch
-  source_url: https://gist.github.com/matrix2669/bb539014fb5ca8e6279a41c1121be677
+          integration: zwave_js
+          domain:
+            - light
+            - switch
+  source_url: https://github.com/lkrakauercp/ha/blob/main/doubletap_hs_switches
 variables:
-  devices: !input switch
+  dtap: !input dtap
+  switches: !input switch
 trigger:
-- platform: device
-  device_id: !input switch
-  domain: zwave_js
-  type: event.value_notification.central_scene
-  property: scene
-  property_key: "001"
-  endpoint: 0
-  command_class: 91
-  subtype: Endpoint 0 Scene 001
-  value: 3
-condition:
-- '{{ trigger.to_state.context.parent_id == none }}'
-- '{{ trigger.to_state.state == ''on'' or trigger.to_state.state == ''off'' }}'
+  - platform: event
+    event_type: zwave_js_value_notification
+condition: "{{
+  trigger.event.data.device_id is in(dtap)
+  and trigger.event.data.value == 'KeyPressed'
+  and
+  (
+  trigger.event.data.property_key_name == '001'
+  or  trigger.event.data.property_key_name == '002'
+  )
+  }}
+  "
 action:
-- service: '{% if trigger.to_state.state == ''on'' %} device.turn_on {% elif
-    trigger.to_state.state == ''off'' %} device.turn_off {% endif %}
-
-    '
-  data_template:
-    entity_id: "{% set ts = namespace(device=[]) %} {% for dv in devices %}\n  {%
-      if not is_state(dv,trigger.to_state.state) %}\n    {% set ts.device = ts.device
-      + [dv] %}\n  {% endif %}\n{% endfor %} {{ ts.device | list }}"
+  - service: "{% if trigger.event.data.property_key_name == '001' %}
+      homeassistant.turn_on
+      {% else %}
+      homeassistant.turn_off
+      {% endif %}"
+    target:
+      entity_id: "{% set ts = namespace(switch=[]) %}
+        {% for dv in switches %}
+        {% set ts.switch = ts.switch + [dv] %}
+        {% endfor %}
+        {{ ts.switch | list }}"

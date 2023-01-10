@@ -22,8 +22,8 @@ trigger:
 condition:
   or:
     condition: state
-    - '{{ trigger.to_state.context.parent_id == none }}'
-    - '{{ trigger.to_state.state == ''on'' or trigger.to_state.state == ''off'' }}'
+    - "{{ trigger.to_state.context.parent_id == none }}""
+    - "{{ trigger.to_state.state == 'on' or trigger.to_state.state == 'off' }}""
     condition: event
     - "{{
       trigger.event.data.device_id is in(switches)
@@ -38,8 +38,7 @@ condition:
 action:
 - service: "{% if trigger.to_state.state == 'on' or trigger.event.data.property_key_name == '001' %} switch.turn_on {% elif
     trigger.to_state.state == 'off'  or trigger.event.data.property_key_name == '002'%} switch.turn_off {% endif %}
-
-    ""
+    "
   data_template:
     entity_id: "{% set ts = namespace(switch=[]) %} {% for sw in switches %}\n  {%
       if not is_state(sw,trigger.to_state.state) %}\n    {% set ts.switch = ts.switch
