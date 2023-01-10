@@ -1,0 +1,46 @@
+blueprint:
+  name: Sync Multiple Homeseer Switches
+  description: Sync the On/Off status of 2 or more Homeseer switches credit matrix2669
+  domain: automation
+  input:
+    switch:
+      name: Switches to Control
+      selector:
+        entity:
+          integration: zwave_js
+          domain:
+            - light
+            - switch
+  source_url: https://github.com/lkrakauercp/ha/blob/main/sync_switches`
+variables:
+  switches: !input switch
+trigger:
+- platform: state
+  entity_id: !input switch
+- platform: event
+  event_type: zwave_js_value_notification
+condition:
+  or:
+    condition: state
+    - '{{ trigger.to_state.context.parent_id == none }}'
+    - '{{ trigger.to_state.state == ''on'' or trigger.to_state.state == ''off'' }}'
+    condition: event
+    - "{{
+      trigger.event.data.device_id is in(switches)
+      and trigger.event.data.value == 'KeyPressed2x'`
+      and
+      (
+      trigger.event.data.property_key_name == '001'
+      or  trigger.event.data.property_key_name == '002'
+      )
+      }}
+      "
+action:
+- service: "{% if trigger.to_state.state == 'on' or trigger.event.data.property_key_name == '001' %} switch.turn_on {% elif
+    trigger.to_state.state == 'off'  or trigger.event.data.property_key_name == '002'%} switch.turn_off {% endif %}
+
+    ""
+  data_template:
+    entity_id: "{% set ts = namespace(switch=[]) %} {% for sw in switches %}\n  {%
+      if not is_state(sw,trigger.to_state.state) %}\n    {% set ts.switch = ts.switch
+      + [sw] %}\n  {% endif %}\n{% endfor %} {{ ts.switch | list }}"
