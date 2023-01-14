@@ -1,37 +1,32 @@
 blueprint:
-  name: Sync Multiple Homeseer Switches
-  description: Sync the On/Off status of 2 or more Homeseer switches credit matrix2669
+  name: Turn Off After On For Time
+  description: Turn multiple devices off after being on for a specified period of time
   domain: automation
   input:
-    switch:
-      name: Switches to Control
+    duration:
+      name: Duration
       selector:
-        device:
+        duration:
+    entity:
+      name: Entities to Control
+      selector:
+        entity:
           multiple: true
-          integration: zwave_js
-  source_url: https://github.com/lkrakauercp/ha/blob/main/blueprints/sync_hs_switches
+  source_url: https://github.com/lkrakauercp/ha/blob/main/blueprints/turn_off_after_on_for_time
 variables:
-  switches: !input switch
+  duration: !input duration
+  entities: !input entity
 trigger:
-  - platform: event
-    event_type: zwave_js_value_notification
-condition: "{{
-  trigger.event.data.value == 'KeyPressed'
-  and trigger.event.data.device_id is in(switches)
-  and
-  (
-  trigger.event.data.property_key_name == '001'
-  or  trigger.event.data.property_key_name == '002'
-  )
-  }}"
+  - platform: state
+    entity_id: !input entity
+    to: "on"
+    for: !input duration
 action:
-  - service:
-      "{% if trigger.event.data.property_key_name == '001' %} homeassistant.turn_on
-      {% elif trigger.event.data.property_key_name == '002'%} homeassistant.turn_off
-      {% endif %}"
+  - service: homeassistant.turn_off
     data:
-      device_id: "{% set ts = namespace(switch=[]) %}
-        {% for sw in switches %}
-        {% set ts.switch = ts.switch + [sw] %}
-        {% endfor %}
-        {{ ts.switch | list }}"
+      entity_id: "{% set ts = namespace(entity=[]) %}
+        {% for sw in entities %}
+        {% if sw == trigger.entity_id %}
+        {% set ts.entity = ts.entity + [sw] %}
+        {% endif %}
+        {% endfor %} {{ ts.entity | list }}"

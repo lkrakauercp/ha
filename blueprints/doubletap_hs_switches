@@ -1,6 +1,6 @@
 blueprint:
-  name: Turn Off After On For Time
-  description: Turn multiple devices off after being on for a specified period of time
+  name: Doubletap Homeseer Switches to Turn Devices on/off
+  description: Doubletap Homeseer Switches to Turn Devices on/off
   domain: automation
   input:
     dtap:
