@@ -1,0 +1,37 @@
+blueprint:
+  name: Sync Multiple Homeseer Switches
+  description: Sync the On/Off status of 2 or more Homeseer switches credit matrix2669
+  domain: automation
+  input:
+    switch:
+      name: Switches to Control
+      selector:
+        device:
+          multiple: true
+          integration: zwave_js
+  source_url: https://github.com/lkrakauercp/ha/blob/main/blueprints/sync_hs_switches
+variables:
+  switches: !input switch
+trigger:
+  - platform: event
+    event_type: zwave_js_value_notification
+condition: "{{
+  trigger.event.data.value == 'KeyPressed'
+  and trigger.event.data.device_id is in(switches)
+  and
+  (
+  trigger.event.data.property_key_name == '001'
+  or  trigger.event.data.property_key_name == '002'
+  )
+  }}"
+action:
+  - service:
+      "{% if trigger.event.data.property_key_name == '001' %} homeassistant.turn_on
+      {% elif trigger.event.data.property_key_name == '002'%} homeassistant.turn_off
+      {% endif %}"
+    data:
+      device_id: "{% set ts = namespace(switch=[]) %}
+        {% for sw in switches %}
+        {% set ts.switch = ts.switch + [sw] %}
+        {% endfor %}
+        {{ ts.switch | list }}"
