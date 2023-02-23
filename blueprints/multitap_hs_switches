@@ -8,9 +8,9 @@ blueprint:
       selector:
         select:
           options:
-            - one
-            - two
-            - three
+            - '2'
+            - '3'
+            - '4'
     dtap:
       name: Switch to multitap
       selector:
