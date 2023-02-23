@@ -1,5 +1,5 @@
 blueprint:
-  name: Doubletap Homeseer Switches to Turn Devices on/off
+  name: Multitap Homeseer Switches to Turn Devices on/off
   description: Multitap Homeseer Switches to Turn Devices on/off
   domain: automation
   input:
