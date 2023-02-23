@@ -12,7 +12,7 @@ blueprint:
             - '3'
             - '4'
     dtap:
-      name: Switch to multitap
+      name: Switches to multitap
       selector:
         device:
           multiple: true
