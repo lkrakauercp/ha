@@ -1,0 +1,61 @@
+blueprint:
+  name: Doubletap Homeseer Switches to Turn Devices on/off
+  description: Multitap Homeseer Switches to Turn Devices on/off
+  domain: automation
+  input:
+    taps: 
+      name: Number of taps
+      selector:
+        select:
+          options:
+            - 2
+            - 3
+            - 4
+    dtap:
+      name: Switch to multitap
+      selector:
+        device:
+          multiple: true
+          integration: zwave_js
+    switch:
+      name: Switches to Control
+      selector:
+        entity:
+          multiple: true
+          integration: zwave_js
+          domain:
+            - light
+            - switch
+  source_url: https://github.com/lkrakauercp/ha/blob/main/blueprints/multitap_hs_switches
+variables:
+  taps: !input taps
+  dtap: !input dtap
+  switches: !input switch
+trigger:
+  - platform: event
+    event_type: zwave_js_value_notification
+condition: "{{
+  trigger.event.data.device_id is in(dtap)
+  and (trigger.event.data.value == 'KeyPressed2x' and taps == '2'
+  or trigger.event.data.value == 'KeyPressed3x' and taps == '3'
+  or trigger.event.data.value == 'KeyPressed4x' and taps == '4'
+  )
+  and
+  (
+  trigger.event.data.property_key_name == '001'
+  or  trigger.event.data.property_key_name == '002'
+  )
+  }}
+  "
+action:
+  - service: "{% if trigger.event.data.property_key_name == '001' %}
+      homeassistant.turn_on
+      {% else %}
+      homeassistant.turn_off
+      {% endif %}"
+    target:
+      entity_id: "{% set ts = namespace(switch=[]) %}
+        {% for dv in switches %}
+        {% set ts.switch = ts.switch + [dv] %}
+        {% endfor %}
+        {{ ts.switch | list }}"
